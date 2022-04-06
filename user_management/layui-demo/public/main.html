@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+  <link rel="stylesheet" href="src/css/layui.css">
+		<!-- <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script> -->
+		<!-- <script type="text/javascript" src="js/echarts.js"></script> -->
+		<link rel="stylesheet" href="css/main.css" />
+	</head>
+
+	<body style="min-width: 1300px;">
+		<div class="layui-container">
+			<div class="layui-row layui-col-space15">
+			<div class="layui-col-xs6">
+				<div class="grid-demo grid-demo-bg1">
+					<div class="card messagediv">
+						<h4>工作通知<a href="" class="more right">更多</a></h4>
+						<ul class="message">
+							<li>
+								<a href="">基础数据3.25版本接收<span>2019-5-21</span></a>
+							</li>
+							<li>
+								<a href="">基础数据3.25版本接收<span>2019-5-21</span></a>
+							</li>
+							<li>
+								<a href="">基础数据3.25版本接收<span>2019-5-21</span></a>
+							</li>
+							<li>
+								<a href="">基础数据3.25版本接收<span>2019-5-21</span></a>
+							</li>
+							<li>
+								<a href="">基础数据3.25版本接收<span>2019-5-21</span></a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="layui-col-xs3">
+				<div class="grid-demo">
+					<div class="card esbdiv">
+						<h4>平台信息</h4>
+						<div class="esb">
+							<div class="computer">
+								<img src="images/m1.png" alt="" class="left" />
+								<div class="left">
+									<p>平台区划</p>
+									<p style="color: #6ebe7a;font-weight: bold;">43-湖南地区</p>
+								</div>
+							</div>
+							<div class="smallver">
+								<img src="images/m2.png" alt="" class="left" />
+								<div class="left">
+									<p>平台区划</p>
+									<p style="color: #6ebe7a;font-weight: bold;">系统版本</p>
+								</div>
+							</div>
+							<div class="smallver">
+								<img src="images/m3.png" alt="" class="left" />
+								<div class="left">
+									<p>平台区划</p>
+									<p style="color: #6ebe7a;font-weight: bold;">基础数据版本</p>
+								</div>
+							</div>
+							<div class="smallver">
+								<img src="images/m4.png" alt="" class="left" />
+								<div class="left">
+									<p>平台区划</p>
+									<p style="color: #6ebe7a;font-weight: bold;">基础数据版本</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="layui-col-xs3">
+				<div class="grid-demo grid-demo-bg1">
+					<div class="card date">
+						<div id="test2"></div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		<div class="layui-row layui-col-space15">
+			<div class="layui-col-xs6">
+				<div class="grid-demo grid-demo-bg1">
+					<div class="tu left">
+						<div class="card" style="width: 50%;">
+							<h4>在线用户：<span style="color: #6ebe7a;font-size: 22px;">3425</span>人</h4>
+							<div id="main" style="width: 99%;height:171px;margin-right: 1px;"></div>
+						</div>
+						<div class="card" style="width: 50%;">
+							<div id="main1" style="width: 100%;height:220px;border-left: 1px solid #e7e8ea;"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="layui-col-xs3">
+				<div class="grid-demo grid-demo-bg1">
+					<div class="card debtdiv">
+						<h4>总账&标准存储应用情况统计</h4>
+						<div class="debt">
+
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="layui-col-xs3">
+				<div class="grid-demo grid-demo-bg1">
+					<div class="card workdiv">
+						<h4>工作流应用情况统计</h4>
+						<div class="work">
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="layui-row layui-col-space15">
+			<div class="layui-col-xs6">
+				<div class="grid-demo grid-demo-bg1">
+					<div class="card data1">
+						<h4>基础数据应用情况统计</h4>
+						<div>
+							<table class="layui-table">
+
+								<thead>
+									<tr>
+										<th>业务系统</th>
+										<th>基础数据数量</th>
+										<th>年度累计取数次数</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>预算系统</td>
+										<td>50</td>
+										<td>25</td>
+									</tr>
+									<tr>
+										<td>支付一体化系统</td>
+										<td>25</td>
+										<td>50</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="layui-col-xs6">
+				<div class="grid-demo">
+					<div class="card data2">
+						<h4>平台服务应用情况统计</h4>
+						<div>
+							<table class="layui-table">
+
+								<thead>
+									<tr>
+										<th>平台服务</th>
+										<th>业务系统数量</th>
+										<th>调用频度（次/天）</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td>基础数据</td>
+										<td>10</td>
+										<td>3</td>
+									</tr>
+									<tr>
+										<td>交换组件</td>
+										<td>7</td>
+										<td>4</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		</div>
+		
+
+	</body>
+
+</html>
+
+  <script src="src/layui.js"></script>
+<script>
+	layui.use('laydate', function() {
+		var laydate = layui.laydate;
+		laydate.render({
+			elem: '#test2',
+			position: 'static',
+			change: function(value, date) { //监听日期被切换
+				lay('#testView').html(value);
+			}
+		});
+	});
+	// 基于准备好的dom，初始化echarts实例
+	var myChart = echarts.init(document.getElementById('main'));
+
+	var scale = 1;
+	var echartData = [{
+		value: 2000,
+		name: '财政用户'
+	}, {
+		value: 125,
+		name: '其他用户'
+	}, {
+		value: 1300,
+		name: '单位用户'
+	}]
+	var rich = {
+		yellow: {
+			fontSize: 17 * scale,
+			padding: [-25, 0],
+			align: 'center'
+		},
+		white: {
+			align: 'center',
+			fontSize: 13 * scale,
+			padding: [-25, 0]
+		},
+
+	}
+	option = {
+		backgroundColor: '#fff',
+		title: {
+			text: '在线用户统计',
+			left: 'center',
+			top: '43%',
+			padding: [0, 0],
+			textStyle: {
+				color: '#000',
+				fontSize: 10 * scale,
+				align: 'center'
+			}
+		},
+		series: [{
+			name: '总考生数量',
+			type: 'pie',
+			radius: ['35%', '50%'],
+			hoverAnimation: false,
+			color: ['#62b69c', '#316273', '#3eac9d'],
+
+			label: {
+				normal: {
+					formatter: function(params, ticket, callback) {
+						var total = 0; //考生总数量
+						var percent = 0; //考生占比
+						echartData.forEach(function(value, index, array) {
+							total += value.value;
+						});
+						percent = ((params.value / total) * 100).toFixed(1);
+						return '{white|' + params.name + '}\n{hr|}\n{yellow|' + params.value + '}';
+					},
+					rich: rich
+				},
+			},
+			labelLine: {
+				normal: {
+					length: 10 * scale,
+					length2: 15
+
+				}
+			},
+			data: echartData
+		}]
+	};
+
+	// 使用刚指定的配置项和数据显示图表。
+	myChart.setOption(option);
+	// 基于准备好的dom，初始化echarts实例
+	var myChart1 = echarts.init(document.getElementById('main1'));
+
+	var scale = 1;
+	var echartData = [{
+		value: 22540,
+		name: '总账数据'
+	}, {
+		value: 12500,
+		name: '流程实例'
+	}, {
+		value: 1300,
+		name: '业务单据'
+	}, {
+		value: 23300,
+		name: '流程定义'
+	}]
+	var rich = {
+		yellow: {
+			fontSize: 17 * scale,
+			padding: [-25, 0],
+			align: 'center'
+		},
+		white: {
+			align: 'center',
+			fontSize: 13 * scale,
+			padding: [-25, 0]
+		},
+
+	}
+	option = {
+		backgroundColor: '#fff',
+		title: {
+			text: '系统数据统计',
+			left: 'center',
+			top: '43%',
+			padding: [0, 0],
+			textStyle: {
+				color: '#000',
+				fontSize: 10 * scale,
+				align: 'center'
+			}
+		},
+		series: [{
+			name: '总考生数量',
+			type: 'pie',
+			radius: ['35%', '50%'],
+			hoverAnimation: false,
+			color: ['#62b69c', '#316273', '#3eac9d', '#85c2a1'],
+
+			label: {
+				normal: {
+					formatter: function(params, ticket, callback) {
+						var total = 0; //考生总数量
+						var percent = 0; //考生占比
+						echartData.forEach(function(value, index, array) {
+							total += value.value;
+						});
+						percent = ((params.value / total) * 100).toFixed(1);
+						return '{white|' + params.name + '}\n{hr|}\n{yellow|' + params.value + '}';
+					},
+					rich: rich
+				},
+			},
+			labelLine: {
+				normal: {
+					length: 10 * scale,
+					length2: 25
+
+				}
+			},
+			data: echartData
+		}]
+	};
+
+	// 使用刚指定的配置项和数据显示图表。
+	myChart1.setOption(option);
+</script>

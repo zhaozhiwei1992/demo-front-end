@@ -1,0 +1,33 @@
+body{background: #f6f7fb;padding:15px;}
+.left{float: left;}
+.right{float: right;}
+.card{background: #fff;float: left;}
+.card h4{color: #40464a;font-size: 15px;font-weight: bold;height: 48px;line-height: 48px;border-bottom: 1px solid #e7e8ea;padding: 0 25px;}
+.more{height: 48px;line-height: 48px;width: 52px;background: url(../images/more.png) no-repeat center right;}
+.message{padding: 0 25px;margin-top: 20px;}
+.message li{height: 36px;border-bottom: 1px solid #ececed;}
+.message li a{display: block;height: 36px;line-height: 36px;}
+.message li a span{float: right;}
+.messagediv{width:100%;height: 330px;}
+.esb{padding:15px;}
+.esbdiv{width:100%;height: 330px;}
+.computer{height: 40px;border: 1px solid #ececed;padding: 10px;}
+.esbdiv p{line-height: 21px;padding-left: 15px;}
+.smallver{width: 50%;float: left;margin: 10px 0 10px 0;}
+.date{height: 330px;width:100%;}
+.card .layui-laydate .layui-this{border-radius: 19px;background-color: #6ebe7a!important;}
+.tu{width: 100%;height: 220px;overflow: hidden;}
+.workdiv{width: 100%;height: 220px;}
+.debtdiv{width: 100%;height: 220px;}
+.work{background: url(../images/m5.png) no-repeat center center;width: 100%;height: 172px;}
+.debt{background: url(../images/m5.png) no-repeat center center;width: 100%;height: 172px;}
+.data1{width: 100%;height: 220px;}
+.data2{width: 100%;height: 220px;}
+.data1>div{padding: 15px;}
+.data2>div{padding: 15px;}
+.layui-laydate, .layui-laydate-hint{border: none !important;box-shadow: none !important;}
+
+.layui-container{padding: 0;margin: 0;width: 100%;}
+
+.card .layui-laydate-main{width:100%;}
+.card .layui-laydate-content td,#test-n1 .layui-laydate-content th{width:87px;height: 30px;}

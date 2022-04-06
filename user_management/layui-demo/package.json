@@ -1,0 +1,15 @@
+{
+  "name": "stuinfomanage-layui",
+  "version": "1.0.0",
+  "description": "## Project setup ``` npm install ```",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
