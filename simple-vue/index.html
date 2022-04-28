@@ -8,6 +8,9 @@
 </head>
 
 <body>
+  <!-- 
+运行: node server.js
+   -->
   <div id="app">
     {{ message }}
   </div>
@@ -73,6 +76,12 @@
       item 属性绑定到了子组件的todo上
     -->
       <todo-item v-for="item in groceryList" v-bind:todo="item" v-bind:key="item.id"></todo-item>
+      <!-- 
+        这里实际就变成了
+      <li v-for="item in groceryList" v-bind:todo="item" v-bind:key="item.id"></li>
+      todo会绑定item的值
+      index.html中是使用方，使用vue的模板
+       -->
     </ol>
   </div>
 

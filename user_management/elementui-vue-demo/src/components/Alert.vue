@@ -1,25 +1,20 @@
 <template>
-  <div class="alert">
-    <!-- <el-alert
-    v-bind:title="message"
-    type="info">
-    </el-alert>-->
+  <div class="alert alert-warning alert-dismissible" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    {{ message }}
+    <!-- test -->
   </div>
 </template>
 
 <script>
 export default {
-  name: "Alert",
+  name: "About",
+  //接收外部消息
   props: ["message"],
   data() {
-    return {
-      message: ""
-    };
+    return {};
   },
-  created() {
-    if (this.message) {
-      this.$message(this.message);
-    }
-  }
 };
 </script>

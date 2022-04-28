@@ -1,4 +1,4 @@
-# elementui-vue-demo
+# hello-vue
 
 ## Project setup
 ```
