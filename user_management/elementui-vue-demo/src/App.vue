@@ -10,7 +10,7 @@
     <!-- router-link的东西会渲染到router-view部分 -->
     <router-view/>
     <!-- footer -->
-    <footer></footer>
+    <Footer></Footer>
   </div>
 </template>
 
@@ -23,7 +23,7 @@ import Footer from './components/layout/Footer.vue'
 @Component({
   components: {
   'navbar': Navbar,
-  'footer': Footer,
+  Footer,
   },
 })
 export default class App extends Vue {}

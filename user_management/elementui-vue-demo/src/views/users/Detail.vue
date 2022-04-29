@@ -1,73 +1,58 @@
 <template>
+
   <div class="add container">
     <h1 class="page-header">用户详情</h1>
-    <router-link to="/users" class="btn btn-default">返回</router-link>
-    <div class="row clearfix">
-      <div class="col-md-12 column">
-          <div class="form-group">
-            <label for="userid">id</label>
-            <input type="text" class="form-control" id="userid" v-model="user.id" />
-          </div>
-          <div class="form-group">
-            <label for="username">name</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="username"
-              id="username"
-              v-model="user.name"
-            />
-          </div>
-          <div class="form-group">
-            <label for="userage">age</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="age"
-              id="userage"
-              v-model="user.age"
-            />
-          </div>
-          <div class="form-group">
-            <label for="userpassword">password</label>
-            <input
-              type="password"
-              class="form-control"
-              placeholder="password"
-              id="userpassword"
-              v-model="user.password"
-            />
-          </div>
-      </div>
-    </div>
+    <el-form ref="form" :model="form" label-width="80px">
+      <el-form-item label="姓名">
+        <el-input v-model="form.name"></el-input>
+      </el-form-item>
+      <el-form-item label="地址">
+        <el-select v-model="form.region" placeholder="地址">
+          <el-option label="北京" value="beijing"></el-option>
+          <el-option label="上海" value="shanghai"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="注册日期">
+        <el-col :span="11">
+          <el-date-picker
+            type="date"
+            placeholder="选择日期"
+            v-model="form.date1"
+            style="width: 100%"
+          ></el-date-picker>
+        </el-col>
+      </el-form-item>
+      <el-form-item>
+        <el-button @click="toUserList()">返回</el-button>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 
 <script>
 export default {
-  name: "useradd",
   // 这里初始化对象不能少，否则一片红
   data() {
     return {
-      user: {}
+      form: {
+        name: "",
+        region: "",
+        date1: "",
+      },
     };
   },
   methods: {
     fetchUserById(id) {
-      this.$http.get("http://localhost:3000/users/" + id).then(
-        function(res) {
-          console.log(res);
-          this.user = res.body;
-        },
-        function() {
-          console.log("根据id获取用户失败");
-        }
-      );
+      console.log("传入id为:" + id)
+        this.form = {name: "zhangsan", region:"北京"};
+    },
+    toUserList(){
+      this.$router.go(-1);
     }
   },
   created() {
     // 修改进入页面就填充数据
-    this.fetchUserById(this.$route.params.id);
+    this.fetchUserById(this.$route.query.id);
   }
 };
 </script>

@@ -1,6 +1,6 @@
 <template>
-<div id='footer'>
-  <h1>Footer</h1>
+<div id='footr'>
+  <h1>这是一个 JIO</h1>
 </div>
 </template>
 
