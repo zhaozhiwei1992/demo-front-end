@@ -46,7 +46,7 @@ export default {
       });
     },
     // 父组件不能直接访问子组件, 迂回战术了
-    setCurrentRow(row) {
+    setCurrentRow(tableId, row) {
       console.log("子组件被请求了, 传入数据: " + row);
       this.$refs.singleTable.setCurrentRow(row);
     },

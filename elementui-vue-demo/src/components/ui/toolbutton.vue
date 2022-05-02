@@ -48,7 +48,7 @@ export default {
       // 子组件里用$emit向父组件触发一个事件，父组件监听这个事件就行了。(不灵活,这里永不了)
       // this.$emit("'"+onClick+"'");
       // 在子组件中通过this.$parent.event来调用父组件的方法
-      this.$parent[onClick]();
+      this.$parent.$parent[onClick]();
     },
   },
 };

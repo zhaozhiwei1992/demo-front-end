@@ -1,20 +1,25 @@
 <template>
   <div>
     <!-- TODO  这里还得自己写组件, 需要处理为动态 -->
-    <ui-editform v-bind:menuid="xx"></ui-editform>
+    <!-- <ui-editform v-bind:menuid="xx"></ui-editform>
     <ui-toolbutton v-bind:menuid="xx"></ui-toolbutton>
     <ui-table
       v-bind:menuid="xx"
       v-bind:tableData="tabDatas"
       ref="singleTable"
-    ></ui-table>
+    ></ui-table> -->
+
+    <!-- 动态加载方式 -->
+    <ui-view v-bind:menuid="xx" ref="mainRef"></ui-view>
   </div>
 </template>
 
 <script>
-import Editform from "@/components/ui/editform.vue";
-import Table from "@/components/ui/table.vue";
-import Toolbutton from "@/components/ui/toolbutton.vue";
+// 这里也得动态引入
+// import Editform from "@/components/ui/editform.vue";
+// import Table from "@/components/ui/table.vue";
+// import Toolbutton from "@/components/ui/toolbutton.vue";
+import View from "@/components/ui/view.vue"
 
 export default {
   data() {
@@ -24,9 +29,10 @@ export default {
     };
   },
   components: {
-    "ui-editform": Editform,
-    "ui-table": Table,
-    "ui-toolbutton": Toolbutton,
+    // "ui-editform": Editform,
+    // "ui-table": Table,
+    // "ui-toolbutton": Toolbutton,
+    "ui-view": View
   },
   mounted() {
     this.initTableData();
@@ -51,12 +57,14 @@ export default {
           age: "20",
         },
       ];
+
+      this.$refs.mainRef.setTableDatas("singleTable", this.tabDatas);
     },
     setCurrent() {
       // 操作表格选中一行
-      this.$refs.singleTable.setCurrentRow(this.tabDatas[1]);
+      this.$refs.mainRef.setTableCurrentRow("singleTable", this.tabDatas[1]);
+      // this.$refs.singleTable.setCurrentRow(this.tabDatas[1]);
     },
-    // TODO 子组件如何调用父页面实现方法
     //新增, 按钮需要组件使用者实现
     add() {
       alert("父页面实现新增");
