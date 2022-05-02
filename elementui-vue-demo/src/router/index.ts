@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import example from './example'
 import user from  './user'
 
 
@@ -20,7 +21,8 @@ const routes: Array<RouteConfig> = [
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
   },
-  ...user
+  ...user,
+  ...example
 ]
 
 const router = new VueRouter({

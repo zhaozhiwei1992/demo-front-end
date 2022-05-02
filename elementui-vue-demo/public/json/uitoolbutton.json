@@ -1,0 +1,7 @@
+{
+  "data": [
+    { "name": "新增", "type": "primary", "size": "medium", "click": "add" },
+    { "name": "编辑", "type": "danger", "size": "medium", "click": "edit" },
+    { "name": "删除", "type": "primary", "size": "medium", "click": "delete" }
+  ]
+}
