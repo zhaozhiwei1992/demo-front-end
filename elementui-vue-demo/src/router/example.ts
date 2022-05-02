@@ -2,6 +2,7 @@ import UITable from "../views/example/uitable.vue";
 import UIEditform from "../views/example/uieditform.vue";
 import UILefttree from "../views/example/uilefttree.vue";
 import UIToolbutton from "../views/example/uitoolbutton.vue";
+import UIFull from "../views/example/uifull.vue";
 
 export default [
   {
@@ -24,4 +25,9 @@ export default [
     name: "uiToolbutton",
     component: UIToolbutton,
   },
+  {
+    path: "/example/ui/full",
+    name: "uiFull",
+    component: UIFull
+  }
 ];

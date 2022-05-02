@@ -1,0 +1,8 @@
+{
+  "data": [
+    { "prop": "name", "label": "姓名" },
+    { "prop": "sex", "label": "性别" },
+    { "prop": "age", "label": "年龄" },
+    { "pro": "operate", "label": "操作" }
+  ]
+}
