@@ -17,6 +17,7 @@
       v-bind:is="item.componentName"
       v-bind:menuid="xx"
       v-bind:tableData="tabDatas"
+      v-bind:key="item.id"
       :ref="item.componentName"
     ></component>
   </div>

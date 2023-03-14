@@ -1,8 +1,9 @@
-import UITable from "../views/example/uitable.vue";
-import UIEditform from "../views/example/uieditform.vue";
-import UILefttree from "../views/example/uilefttree.vue";
-import UIToolbutton from "../views/example/uitoolbutton.vue";
-import UIFull from "../views/example/uifull.vue";
+import UITable from "../views/example/TableExample.vue";
+import UIEditform from "../views/example/FormExample.vue";
+import UILefttree from "../views/example/MenuExample.vue";
+import UIToolbutton from "../views/example/ButtonExample.vue";
+import UIFull from "../views/example/DynamicComponentSample.vue";
+import DynamicJSView from "../views/example/DynamicComponentExtJS.vue";
 
 export default [
   {
@@ -29,5 +30,10 @@ export default [
     path: "/example/ui/full",
     name: "uiFull",
     component: UIFull
+  },
+  {
+    path: "/example/ui/full/2",
+    name: "uiFull2",
+    component: DynamicJSView
   }
 ];
