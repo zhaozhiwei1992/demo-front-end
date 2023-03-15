@@ -20,6 +20,12 @@ export default {
     //   document.head.appendChild(tag);
     // });
   },
+  created() {
+    // this.$refs.mainRef.toolbutton.$on('buttonClick', this.myDefine)
+    this.$bus.$off("buttonClick").$on("buttonClick", (item) => {
+          return this[item.click](item)
+        });  
+  },
   methods: {
     // 方法只能在这里展开, 否则无法覆盖
     // 引入common所有方法, 业务可进行覆盖
@@ -52,7 +58,8 @@ export default {
       // this.$refs.singleTable.setCurrentRow(this.tabDatas[1]);
     },
     //新增, 按钮需要组件使用者实现
-    add() {
+    add(item) {
+      console.log('按钮组件信息', item);
       alert('这是js2中的add方法'); 
       // 获取组件列表中信息
       // alert("父页面实现新增");

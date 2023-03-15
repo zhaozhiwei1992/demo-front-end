@@ -3,11 +3,12 @@
     <el-row>
       <el-col>
         <el-button
+          ref="toolbutton"
           :type="item.type"
           plain
           v-for="(item, i) in buttonArray"
           :key="i"
-          v-on:[eventName]="handleClick(item.click)"
+          v-on:[eventName]="handleClick(item)"
           :size="item.size"
           class="right-btn"
           >{{ item.name }}</el-button
@@ -42,13 +43,14 @@ export default {
       });
     },
     //动态绑定操作按钮的点击事件, 父页面实现方法
-    handleClick(i) {
-      let onClick = i;
+    handleClick(item) {
+      let onClick = item.click;
       // this[onClick]();
-      // 子组件里用$emit向父组件触发一个事件，父组件监听这个事件就行了。(不灵活,这里永不了)
-      // this.$emit("'"+onClick+"'");
+      // 子组件里用$emit向父组件触发一个事件，父组件监听这个事件就行了。
+      // 20230315, 增加$bus, 屏蔽跨层处理按钮点击 (推荐)
+      this.$bus.$emit("buttonClick", item);
       // 在子组件中通过this.$parent.event来调用父组件的方法
-      this.$parent.$parent[onClick]();
+      // this.$parent.$parent[onClick]();
     },
   },
 };

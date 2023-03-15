@@ -41,6 +41,7 @@
     </table>
     <div id="box">
       <input type="button" @click="fetchUsers()" value="点我异步获取用户数据" />
+      <input type="button" @click="extJs()" value="点我测试外部引入" />
     </div>
   </div>
 </template>
@@ -55,6 +56,13 @@ export default {
     };
   },
   methods: {
+    extJs(){
+      // 后端接口获取动态加载的js, js中应暴露一些方法
+      import('./userList.js').then(res => {
+          // 动态引入userList.js, 增加一些通用方法
+          res.add();
+        })
+    },
     fetchUsers() {
       this.$http.get("http://127.0.0.1:3000/users").then(
         function(res) {
