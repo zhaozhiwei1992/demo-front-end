@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head">
+    <title>计划信息</title>
+    <link/>
+    <script type="text/javascript" src="rpt001.js" media="all"></script>
+    <script></script>
+</head>
+
+<blockquote class="layui-elem-quote quoteBox">
+    <form class="layui-form" id="searchForm">
+        <div class="layui-form-item layui-row">
+            <div class="layui-inline">
+                <label class="layui-form-label" style="white-space:nowrap">单位名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="agency_name" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label" style="white-space:nowrap">项目名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="pro_name" autocomplete="off" class="layui-input">
+                </div>
+                <a class="layui-btn search_btn" data-type="reload">搜索</a>
+                <button type="button" class="layui-btn import_xml_btn">导入</button>
+            </div>
+        </div>
+    </form>
+</blockquote>
+<table id="rptList" lay-filter="rptList"></table>
+</html>
