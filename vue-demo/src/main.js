@@ -8,28 +8,28 @@ import About from './components/About'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import UsersList from './components/users/List'
-import VueResource from 'vue-resource'
+import HttpPlugin from './plugins/http'
 import UserAdd from './components/users/Add'
 import UserUpdate from './components/users/Update'
 import UserDetail from './components/users/Detail'
+import AiFormFlow from './components/AiFormFlow'
 
 
 Vue.config.productionTip = false
 
 Vue.use(VueRouter)
-Vue.use(VueResource)
+Vue.use(HttpPlugin)
 
 //路由配置
 const router = new VueRouter({
-  mode:'history',
-  base: __dirname,
   routes:[
     {path:'/', component: Home}, //默认主页面
     {path:'/about', component: About},
     {path:'/users', component: UsersList},
     {path:'/useradd', component: UserAdd},
     {path:'/userupdate/:id', component: UserUpdate},
-    {path:'/userdetail/:id', component: UserDetail}
+    {path:'/userdetail/:id', component: UserDetail},
+    {path:'/ai-fsm', component: AiFormFlow}
   ]
 })
 

@@ -26,6 +26,9 @@
             <router-link to="/users">用户列表</router-link>
           </li>
           <li>
+            <router-link to="/ai-fsm">AI表单FSM</router-link>
+          </li>
+          <li>
             <router-link to="/about">关于</router-link>
           </li>
           <li>
