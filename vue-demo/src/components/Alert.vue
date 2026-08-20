@@ -10,11 +10,8 @@
 
 <script>
 export default {
-  name: "About",
-  //接收外部消息
-  props: ["message"],
-  data() {
-    return {};
-  },
-};
+  name: 'Alert',
+  // 接收外部消息
+  props: ['message']
+}
 </script>
