@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>通用表单宿主（业务无关）</title>
+  <style>
+    body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; margin: 0; background: #f5f6f8; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 18px; }
+    .tip { color: #888; font-size: 13px; margin-bottom: 16px; }
+    .card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 14px; margin-bottom: 6px; color: #333; }
+    .field label .req { color: #e5484d; }
+    .field input, .field select {
+      width: 100%; box-sizing: border-box; padding: 8px 10px;
+      border: 1px solid #d0d3d8; border-radius: 6px; font-size: 14px;
+    }
+    .field.preview input, .field.preview select { border-color: #ffb020; background: #fff8e6; }
+    .field.filled input { border-color: #2f9e44; }
+    .field .msg { font-size: 12px; color: #e5484d; margin-top: 4px; }
+    .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
+    .btn.primary { background: #3b6fe0; color: #fff; }
+    .btn.submit { background: #2f9e44; color: #fff; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .toolbar { margin-top: 12px; display: flex; gap: 10px; align-items: center; }
+    .status-bar { margin-top: 16px; font-size: 13px; color: #4a7; display: none; }
+    .status-bar.show { display: block; }
+    /* AI 助手浮窗 */
+    #aiFrame { position: fixed; right: 16px; bottom: 16px; width: 400px; height: 75vh;
+      border: 1px solid #dfe1e5; border-radius: 12px; box-shadow: 0 6px 24px rgba(0,0,0,.15);
+      background: #fff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>① 通用表单宿主（业务无关）</h1>
+    <div class="tip">
+      这张表单不绑定任何业务：按一份 FormSchema 渲染字段 + 跑校验。右下角为跨域 AI 助手 iframe（端口 8081，经 postMessage 传 JSON）。
+      <br />可在右下角输入如「姓名 张三」「日期 5月11日」「类型 B」对话，体验 AI 对话填单。
+    </div>
+    <div class="card" id="formCard"></div>
+    <div class="toolbar">
+      <button class="btn primary" id="btnSendToAI">把已填信息同步给 AI 助手</button>
+      <button class="btn submit" id="btnSubmitHere">直接在此页面提交表单</button>
+      <span class="tip" style="margin:0">（也可在 AI 对话里说「提交」）</span>
+    </div>
+    <div class="status-bar" id="statusBar"></div>
+  </div>
+
+  <iframe id="aiFrame" src="http://127.0.0.1:8081/assistant.html" title="AI 助手"></iframe>
+
+  <!-- 共享依赖 -->
+  <script src="cross-domain-bus.js"></script>
+  <script src="schema-demo.js"></script>
+  <script>
+    const schema = window.DEMO_SCHEMA;
+    const formCard = document.getElementById('formCard');
+    const statusBar = document.getElementById('statusBar');
+
+    // ---- 按 schema 渲染通用表单 ----
+    const inputs = {};
+    function renderForm() {
+      formCard.innerHTML = '';
+      schema.fields.forEach(f => {
+        const box = document.createElement('div');
+        box.className = 'field';
+        box.id = 'f-' + f.code;
+        const lab = document.createElement('label');
+        lab.innerHTML = f.label + (f.required ? ' <span class="req">*</span>' : '');
+        box.appendChild(lab);
+        let ctrl;
+        if (f.type === 'enum') {
+          ctrl = document.createElement('select');
+          ctrl.innerHTML = '<option value="">请选择</option>' +
+            f.options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+        } else if (f.type === 'date') {
+          ctrl = document.createElement('input');
+          ctrl.type = 'date';
+        } else {
+          ctrl = document.createElement('input');
+          ctrl.placeholder = f.placeholder || '';
+        }
+        ctrl.addEventListener('input', () => { box.classList.add('filled'); });
+        box.appendChild(ctrl);
+        formCard.appendChild(box);
+        inputs[f.code] = ctrl;
+      });
+    }
+    renderForm();
+
+    function setFieldStyle(code, cls) {
+      const box = document.getElementById('f-' + code);
+      if (box) { box.className = 'field ' + cls; }
+    }
+    function clearFieldStyle() {
+      schema.fields.forEach(f => setFieldStyle(f.code, ''));
+    }
+
+    // ---- 业务校验（业务无关：只做必填 + 规则检查，是"唯一裁判"）----
+    function validate(values) {
+      const results = [];
+      schema.fields.forEach(f => {
+        const v = values[f.code];
+        if (f.required && (v === undefined || v === null || v === '')) {
+          results.push({ code: f.code, status: 'missing', message: '系统必填' });
+        } else if (v && f.type === 'enum' && !f.options.some(o => o.value === v)) {
+          results.push({ code: f.code, status: 'error', message: '取值不合法' });
+        }
+      });
+      return results;
+    }
+    function getSnapshot() {
+      const s = {};
+      schema.fields.forEach(f => { const v = inputs[f.code].value; if (v) s[f.code] = v; });
+      return s;
+    }
+    function applyValues(values) {
+      clearFieldStyle();
+      let ok = true;
+      schema.fields.forEach(f => {
+        const v = values[f.code];
+        if (v !== undefined && v !== null && v !== '') {
+          inputs[f.code].value = v;
+          setFieldStyle(f.code, 'filled');
+        } else if (f.required) { ok = false; }
+      });
+      return ok;
+    }
+
+    function showStatus(txt, color) {
+      statusBar.textContent = txt;
+      statusBar.style.color = color || '#4a7';
+      statusBar.classList.add('show');
+    }
+
+    // ---- 跨域总线：宿主侧（发→8081 助手，收←助手）----
+    const aiFrame = document.getElementById('aiFrame');
+    const bus = new CrossDomainBus({
+      targetWindow: aiFrame.contentWindow,
+      targetOrigin: 'http://127.0.0.1:8081',
+      myOrigin: 'http://127.0.0.1:8081', // 允许接收的消息来源（跨域对面 8081）
+    }).init();
+
+    // ---- 值同步：表单页录入 → AI（宿主为主/ AI 为辅姿态）----
+    // 用户停止输入 300ms 后，把当前快照经 FORM_SNAPSHOT 推给 AI，让 AI 不盲目
+    // （不重复建议已填字段）。AI 也可用 GET_SNAPSHOT 主动拉取（见下）。
+    let syncTimer = null;
+    function syncToAI() {
+      const snap = getSnapshot();
+      bus.send('FORM_SNAPSHOT', { formCode: schema.formCode, snapshot: snap });
+      showStatus('已将表单当前值同步给 AI 助手。', '#668');
+    }
+    schema.fields.forEach(f => {
+      inputs[f.code].addEventListener('input', () => {
+        clearTimeout(syncTimer);
+        syncTimer = setTimeout(() => { syncToAI(); }, 300);
+      });
+    });
+
+    // AI 主动拉当前快照（若上一轮同步因丢消息缺失）
+    bus.on('GET_SNAPSHOT', ({ replyTo }) => {
+      bus.reply('SNAPSHOT', { formCode: schema.formCode, snapshot: getSnapshot() }, replyTo);
+    });
+
+    // ---- 宿主主导提交：不经过 AI 对话框，业务自己校验落库 ----
+    // 校验通过 → 发 FORM_SUBMITTED 通知 AI 收尾（回 IDLE）；不通过 → 提示缺失。
+    function submitHere() {
+      const final = getSnapshot();
+      const results = validate(final);
+      if (results.length === 0) {
+        const bizKey = 'DEMO-' + Date.now().toString().slice(-4);
+        showStatus('✅ 已在此页面提交，单号 ' + bizKey, '#2f9e44');
+        schema.fields.forEach(f => { inputs[f.code].value = ''; });
+        clearFieldStyle();
+        bus.send('FORM_SUBMITTED', { formCode: schema.formCode, finalSnapshot: final, bizKey });
+      } else {
+        showStatus('⚠ ' + results.map(r => schema.fields.find(f => f.code === r.code).label).join('、') + ' 未填写，无法在此提交', '#e5484d');
+      }
+    }
+    document.getElementById('btnSubmitHere').addEventListener('click', submitHere);
+    document.getElementById('btnSendToAI').addEventListener('click', () => syncToAI());
+
+    // iOS 助手先启动并主动收发 AI_WAKEUP，宿主只需被动应答，无需判断 iframe 时序。
+    // 协议：助手重试 AI_WAKEUP -> 宿主收到后（= 双方监听均已就绪）回 SCHEMA_READY
+    //       -> 助手停重试回 SCHEMA_ACK -> 宿主确认通信建立。
+    bus.on('AI_WAKEUP', () => {
+      bus.targetWindow = aiFrame.contentWindow;
+      bus.send('SCHEMA_READY', schema);
+      showStatus('正在连接 AI 助手…', '#668');
+    });
+
+    // AI 助手回执：确认双向通信已建立
+    bus.on('SCHEMA_ACK', ({ payload }) => {
+      showStatus('AI 助手已就绪：表单「' + payload.formName + '」，可以对话填单。', '#2f9e44');
+      document.title = 'AI_READY'; // 供无头验证 / 诊断
+    });
+
+    // 预览/理解：直接把 AI 建议值回写到表单（黄色 preview 高亮，区别于用户已填的绿色），
+    // 不覆盖用户手填值——只填空字段。回写后可直观看到，确认后转真实落值。
+    bus.on('PREVIEW_FILL', ({ payload }) => {
+      clearFieldStyle();
+      const merged = Object.assign({}, getSnapshot(), payload.values || {});
+      schema.fields.forEach(f => {
+        const v = merged[f.code];
+        if (v !== undefined && v !== null && v !== '') {
+          // 回写：仅当当前为空才填（不覆盖用户手填）；已有值视为用户已填（绿色）
+          if (!inputs[f.code].value) inputs[f.code].value = v;
+          setFieldStyle(f.code, inputs[f.code].value === v ? 'preview' : 'filled');
+        }
+      });
+      showStatus('已回写 AI 建议值（黄色为 AI 建议，确认后落值）', '#ff8c00');
+    });
+
+    // 真校验落值
+    bus.on('PROPOSE_FILL', ({ payload, replyTo }) => {
+      showStatus('校验中…', '#3b6fe0');
+      const merged = Object.assign({}, payload.basedOnSnapshot || {}, payload.values || {});
+      const applied = applyValues(merged);
+      const results = validate(merged);
+      const ok = results.length === 0;
+      // 业务侧是唯一裁判，把校验结果结构化回给 AI
+      bus.reply('VALIDATION_FEEDBACK', {
+        formCode: schema.formCode,
+        round: payload.round || 1,
+        fieldResults: results,
+        // 同时给 raw 文本，演示双通道
+        raw: results.map(r => schema.fields.find(f => f.code === r.code).label + '不能为空').join('，'),
+        snapshot: getSnapshot(),
+      }, replyTo);
+      if (ok) {
+        applyValues(merged);
+        showStatus('校验通过，信息已写入表单。', '#2f9e44');
+      } else {
+        showStatus('校验未通过，AI 将追问缺失项。', '#e5484d');
+      }
+    });
+
+    // 提交：真实校验，通过才回 FORM_SUBMITTED（真实快照+单号）；缺失则拒提交并回
+    // VALIDATION_FEEDBACK，让 AI 转 REVISING 追问——不造假空表单提交。
+    bus.on('REQUEST_SUBMIT', ({ payload, replyTo }) => {
+      const final = getSnapshot();
+      const results = validate(final);
+      if (results.length === 0) {
+        const bizKey = 'DEMO-' + Date.now().toString().slice(-4);
+        showStatus('✅ 已提交，单号 ' + bizKey, '#2f9e44');
+        // 提交成功即清空表单，回到空闲
+        schema.fields.forEach(f => { inputs[f.code].value = ''; });
+        clearFieldStyle();
+        bus.reply('FORM_SUBMITTED', { formCode: schema.formCode, finalSnapshot: final, bizKey }, replyTo);
+      } else {
+        // 拒提交：回结构化缺失，通知 AI 追问，不返回 FORM_SUBMITTED
+        showStatus('⚠ 还有必填项未填写，无法提交', '#e5484d');
+        bus.reply('VALIDATION_FEEDBACK', {
+          formCode: schema.formCode,
+          round: ((payload && payload.round) || 1) + 1,
+          fieldResults: results,
+          raw: results.map(r => schema.fields.find(f => f.code === r.code).label + '不能为空').join('，'),
+          snapshot: final,
+        }, replyTo);
+      }
+    });
+
+    // 取消
+    bus.on('CANCEL', () => {
+      clearFieldStyle();
+      showStatus('已取消本次填单。', '#888');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>智能填单通用协议 Demo</title>
+  <style>
+    body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; background:#eef1f5; }
+    .topbar { padding: 12px 20px; background: #1f2937; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+    .topbar h1 { font-size: 16px; margin: 0; font-weight: 600; }
+    .topbar .steps { font-size: 12px; color: #c7ced6; }
+    #hostFrame { flex: 1; border: none; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <h1>智能填单通用协议 Demo（业务无关）</h1>
+    <span class="steps">
+      ① 宿主页(8080) 注册 schema → ② AI 助手(8081, 跨域 iframe) 对话 → ③ postMessage 传 JSON 完成校验/落值/提交
+    </span>
+  </div>
+  <iframe id="hostFrame" src="http://127.0.0.1:8080/host.html"></iframe>
+</body>
+</html>

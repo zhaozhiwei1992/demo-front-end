@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>通用 AI 助手</title>
+  <style>
+    body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; background: #fafbfc; }
+    .head { padding: 12px 14px; background: #3b6fe0; color: #fff; font-size: 15px; font-weight: 600; }
+    .chat { flex: 1; overflow-y: auto; padding: 12px; box-sizing: border-box; }
+    .msg { margin-bottom: 10px; display: flex; }
+    .msg.ai { justify-content: flex-start; }
+    .msg.user { justify-content: flex-end; }
+    .bubble { max-width: 82%; padding: 10px 12px; border-radius: 10px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+    .msg.ai .bubble { background: #eef2ff; color: #222; }
+    .msg.user .bubble { background: #3b6fe0; color: #fff; }
+    /* 字段摘要卡 */
+    .summary { background:#fff; border:1px solid #e2e5ea; border-radius:10px; padding:10px 12px; margin-top:8px; font-size:13px; }
+    .summary .row { display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px dashed #f0f0f0; }
+    .summary .row:last-child { border-bottom:none; }
+    .row.ok { color:#2f9e44; }
+    .row.missing { color:#a0a4ab; }
+    .row.error { color:#e5484d; }
+    .row .st { font-size:11px; margin-left:6px; }
+    /* chips */
+    .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+    .chip { padding:4px 10px; border-radius:14px; border:1px solid #3b6fe0; color:#3b6fe0; background:#fff; font-size:12px; cursor:pointer; }
+    .chip:hover { background:#3b6fe0; color:#fff; }
+    .inputbar { display:flex; border-top:1px solid #e2e5ea; padding:8px; background:#fff; }
+    .inputbar input { flex:1; border:1px solid #d0d3d8; border-radius:6px; padding:8px 10px; font-size:13px; outline:none; }
+    .inputbar button { margin-left:8px; padding:0 16px; border:none; background:#3b6fe0; color:#fff; border-radius:6px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <div class="head">AI 助手（通用，端口 8081，跨域）</div>
+  <div class="chat" id="chat"></div>
+  <div class="inputbar">
+    <input id="input" placeholder="说点什么，如：姓名 张三 / 日期 5月11日 / 类型 B" />
+    <button id="send">发送</button>
+  </div>
+
+  <script src="cross-domain-bus.js"></script>
+  <script src="schema-demo.js"></script>
+  <script src="ai-backend-demo.js"></script>
+  <script>
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('input');
+    const AI = window.AIBackend;
+    let schema = null;
+    let lastValues = {};
+    let state = 'IDLE'; // IDLE -> UNDERSTANDING -> AWAITING_CONFIRM -> ...
+    let pendingReply = null; // 上轮 AI 渲染，用于"确认写入"
+
+    // ---- 面向宿主（8080）的跨域总线，本 iframe 侧 ----
+    const bus = new CrossDomainBus({
+      targetWindow: window.parent,
+      targetOrigin: 'http://127.0.0.1:8080',
+      myOrigin: 'http://127.0.0.1:8080', // 允许接收的消息来源（跨域对面宿主 8080）
+    }).init();
+
+    // 助手主动握手：加载后立即重试 AI_WAKEUP，直到收到 SCHEMA_READY 才停。
+    // 不依赖 iframe 时序——宿主无论何时加载，只要它注册了监听，助手重试总能把话送到。
+    let wakeupTimer = null;
+    function wakeup() {
+      bus.send('AI_WAKEUP', { who: 'assistant', ts: Date.now() });
+    }
+    wakeup();
+    wakeupTimer = setInterval(() => { if (!schema) wakeup(); }, 200);
+
+    bus.on('SCHEMA_READY', ({ payload, replyTo }) => {
+      schema = payload;
+      // 停重试
+      clearInterval(wakeupTimer);
+      // 双向握手：回 ACK，让宿主确认通信已建立
+      bus.reply('SCHEMA_ACK', { formCode: schema.formCode, formName: schema.formName }, replyTo);
+      addMsg('ai', `已就绪：表单「${schema.formName}」`);
+    });
+
+    // 业务校验结果回传后，做一轮"翻译追问"
+    bus.on('VALIDATION_FEEDBACK', ({ payload }) => {
+      // 宿主回的快照是当前真源，吸收进 AI 认知（对话抽取值 + 宿主已确认值）
+      if (payload && payload.snapshot) lastValues = Object.assign({}, lastValues, payload.snapshot);
+      const results = AI.parseValidation(payload, schema);
+      const render = AI.translate({
+        userText: '', schema, mode: 'VALIDATION_RESULT',
+        validation: results, lastValues,
+      });
+      state = 'REVISING';
+      addMsg('ai', render.reply, render.blocks, render.suggestions);
+    });
+
+    // 表单页（宿主）值同步：用户在表单页直接录入/修改，异步通知 AI 更新认知。
+    // AI 以此为最新底稿：不再重复建议已填字段、追问保持真实、代填不留冲突。
+    // 宿主快照是唯一真源：合并后删除为空/未出现的键，避免旧值残留。
+    bus.on('FORM_SNAPSHOT', ({ payload }) => {
+      lastValues = payload.snapshot || {};
+    });
+
+    // AI 主动拉当前表单快照（防抖同步偶发丢消息的补救）
+    bus.on('SNAPSHOT', ({ payload }) => {
+      lastValues = payload.snapshot || {};
+    });
+
+    bus.on('FORM_SUBMITTED', ({ payload }) => {
+      addMsg('ai', '✅ 已提交，单号 ' + payload.bizKey);
+      state = 'IDLE'; lastValues = {};
+    });
+
+    // ---- 用户输入 ----
+    function onUser(text) {
+      addMsg('user', text);
+      if (!schema) { addMsg('ai', '宿主尚未注册表单，请先打开宿主页。'); return; }
+
+      if (state === 'AWAITING_CONFIRM' && /确认|生成|写入/.test(text)) {
+        // 用户确认 → 真正落值校验
+        bus.send('PROPOSE_FILL', {
+          formCode: schema.formCode, round: 1, delta: true,
+          basedOnSnapshot: lastValues, values: pendingReply.values, commit: true,
+        });
+        addMsg('ai', '正在写入并校验…');
+        state = 'COMMITTING';
+        return;
+      }
+      if (state === 'COMPLETE' && /提交/.test(text)) {
+        bus.send('REQUEST_SUBMIT', { formCode: schema.formCode });
+        return;
+      }
+
+      // 预览：理解阶段（不触业务）
+      const render = AI.translate({ userText: text, schema, mode: 'UNDERSTANDING', lastValues });
+      lastValues = Object.assign({}, lastValues, render.values);
+      pendingReply = render;
+      state = 'AWAITING_CONFIRM';
+      bus.send('PREVIEW_FILL', { formCode: schema.formCode, values: render.values, commit: false });
+      addMsg('ai', render.reply, render.blocks, render.suggestions);
+    }
+
+    // icons for chips
+    function handleSuggestion(chip) {
+      if (chip === '取消') { bus.send('CANCEL', { formCode: schema.formCode }); state = 'IDLE'; addMsg('ai', '已取消。'); return; }
+      if (chip === '确认提交') { bus.send('REQUEST_SUBMIT', { formCode: schema.formCode }); return; }
+      if (chip === '再改改' || /补充/.test(chip)) {
+        // 简化：把要补充的字段名转成输入提示
+        input.value = chip === '再改改' ? '' : chip.replace('补充', '');
+        input.focus(); return;
+      }
+      onUser(chip);
+    }
+
+    function addMsg(role, text, blocks, suggestions) {
+      const wrap = document.createElement('div');
+      wrap.className = 'msg ' + role;
+      let html = `<div class="bubble">${escapeHtml(text)}</div>`;
+      if (blocks) {
+        blocks.forEach(b => {
+          if (b.type === 'form_summary') {
+            html += `<div class="summary">${b.data.fields.map(f =>
+              `<div class="row ${f.status}">${escapeHtml(f.label)}：<span>${escapeHtml(f.value)}<span class="st">${f.status==='ok'?'✓':f.status==='missing'?'？':'⚠'}</span></span></div>`
+            ).join('')}</div>`;
+          }
+        });
+      }
+      if (suggestions && suggestions.length) {
+        html += `<div class="chips">${suggestions.map(s =>
+          `<span class="chip" data-chip="${escapeHtml(s)}">${escapeHtml(s)}</span>`).join('')}</div>`;
+      }
+      wrap.innerHTML = html;
+      chat.appendChild(wrap);
+      chat.scrollTop = chat.scrollHeight;
+      // 绑定 chips
+      wrap.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => handleSuggestion(c.dataset.chip)));
+    }
+    function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    document.getElementById('send').addEventListener('click', () => { const t = input.value.trim(); if (t) { onUser(t); input.value = ''; } });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('send').click(); });
+  </script>
+</body>
+</html>
