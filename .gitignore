@@ -1,0 +1,7 @@
+# project logs
+logs/
+out/
+
+# node_modules
+node_modules
+
